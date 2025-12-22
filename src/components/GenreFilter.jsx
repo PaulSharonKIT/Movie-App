@@ -1,26 +1,32 @@
-import React from "react";
+const genres = [
+  "Action",
+  "Comedy",
+  "Drama",
+  "Thriller",
+  "Romance",
+  "Sci-Fi",
+  "Horror",
+];
 
-const GenreFilter = ({ genres, selectedGenre, setSelectedGenre }) => {
-  return (
-    <div className="genre-filter">
+const GenreFilter = ({ selectedGenre, setSelectedGenre }) => (
+  <div className="genre-filter">
+    <button
+      className={!selectedGenre ? "active" : ""}
+      onClick={() => setSelectedGenre(null)}
+    >
+      All
+    </button>
+
+    {genres.map((g) => (
       <button
-        className={!selectedGenre ? "active" : ""}
-        onClick={() => setSelectedGenre(null)}
+        key={g}
+        className={selectedGenre === g ? "active" : ""}
+        onClick={() => setSelectedGenre(g)}
       >
-        All
+        {g}
       </button>
-
-      {genres.map((genre) => (
-        <button
-          key={genre.id}
-          className={selectedGenre === genre.id ? "active" : ""}
-          onClick={() => setSelectedGenre(genre.id)}
-        >
-          {genre.name}
-        </button>
-      ))}
-    </div>
-  );
-};
+    ))}
+  </div>
+);
 
 export default GenreFilter;

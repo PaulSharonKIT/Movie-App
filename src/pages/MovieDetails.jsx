@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import tmdb from "../api/tmdb";
+import omdb from "../api/omdb";
 
 const MovieDetails = () => {
   const { id } = useParams();
@@ -8,9 +8,12 @@ const MovieDetails = () => {
 
   useEffect(() => {
     const fetchMovie = async () => {
-      const res = await tmdb.get(`/movie/${id}`);
+      const res = await omdb.get("", {
+        params: { i: id, plot: "full" },
+      });
       setMovie(res.data);
     };
+
     fetchMovie();
   }, [id]);
 
@@ -18,15 +21,13 @@ const MovieDetails = () => {
 
   return (
     <div className="movie-details">
-      <img
-        src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
-        alt={movie.title}
-      />
+      <img src={movie.Poster} alt={movie.Title} />
       <div>
-        <h2>{movie.title}</h2>
-        <p>{movie.overview}</p>
-        <p>⭐ Rating: {movie.vote_average}</p>
-        <p>📅 Release Date: {movie.release_date}</p>
+        <h2>{movie.Title}</h2>
+        <p>{movie.Plot}</p>
+        <p>⭐ {movie.imdbRating}</p>
+        <p>🎭 {movie.Genre}</p>
+        <p>📅 {movie.Released}</p>
       </div>
     </div>
   );

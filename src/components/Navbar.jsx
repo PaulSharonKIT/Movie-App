@@ -1,15 +1,20 @@
-import React from "react";
+import { Link } from "react-router-dom";
 
-const Navbar = ({ searchTerm, setSearchTerm }) => {
+const Navbar = ({ search, setSearch }) => {
   return (
     <nav className="navbar">
-      <h1>🎬 Movie Explorer</h1>
+      <h1 className="logo">🎬 Movie Explorer</h1>
+
       <input
-        type="text"
+        className="search-input"
         placeholder="Search movies..."
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
       />
+
+      <Link to="/favorites" className="fav-link">
+        ⭐ Favourites
+      </Link>
     </nav>
   );
 };

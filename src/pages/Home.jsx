@@ -1,54 +1,77 @@
-import React, { useEffect, useState } from "react";
-import tmdb from "../api/tmdb";
+import { useEffect, useState } from "react";
+import omdb from "../api/omdb";
 import Navbar from "../components/Navbar";
 import MovieCard from "../components/MovieCard";
 import GenreFilter from "../components/GenreFilter";
 
+const POPULAR_KEYWORDS = ["Avengers", "Batman", "Spider", "Harry Potter"];
+
 const Home = () => {
   const [movies, setMovies] = useState([]);
-  const [genres, setGenres] = useState([]);
-  const [searchTerm, setSearchTerm] = useState("");
+  const [search, setSearch] = useState("");
   const [selectedGenre, setSelectedGenre] = useState(null);
-
-  useEffect(() => {
-    const fetchGenres = async () => {
-      const res = await tmdb.get("/genre/movie/list");
-      setGenres(res.data.genres);
-    };
-    fetchGenres();
-  }, []);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const fetchMovies = async () => {
-      const endpoint = searchTerm
-        ? "/search/movie"
-        : "/discover/movie";
+      setLoading(true);
 
-      const res = await tmdb.get(endpoint, {
-        params: {
-          query: searchTerm,
-          with_genres: selectedGenre,
-        },
-      });
+      try {
+        let response;
 
-      setMovies(res.data.results);
+        // 🔹 If search bar is empty → show popular movies
+        if (!search.trim()) {
+          const randomKeyword =
+            POPULAR_KEYWORDS[
+              Math.floor(Math.random() * POPULAR_KEYWORDS.length)
+            ];
+
+          response = await omdb.get("", {
+            params: { s: randomKeyword },
+          });
+        } 
+        // 🔹 Live search (each letter typed)
+        else {
+          response = await omdb.get("", {
+            params: { s: search },
+          });
+        }
+
+        if (response.data.Search) {
+          setMovies(response.data.Search);
+        } else {
+          setMovies([]);
+        }
+      } catch (error) {
+        console.error("Error fetching movies", error);
+      }
+
+      setLoading(false);
     };
 
-    fetchMovies();
-  }, [searchTerm, selectedGenre]);
+    // Small delay to avoid API spam
+    const timer = setTimeout(fetchMovies, 400);
+    return () => clearTimeout(timer);
+
+  }, [search]);
 
   return (
     <>
-      <Navbar searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
+      <Navbar search={search} setSearch={setSearch} />
       <GenreFilter
-        genres={genres}
         selectedGenre={selectedGenre}
         setSelectedGenre={setSelectedGenre}
       />
 
+      {loading && <p className="status-text">Loading movies...</p>}
+
+      {!loading && movies.length === 0 && (
+        <p className="status-text">No movies found</p>
+      )}
+
       <div className="movie-grid">
         {movies.map((movie) => (
-          <MovieCard key={movie.id} movie={movie} />
+          <MovieCard key={movie.imdbID} movie={movie} />
         ))}
       </div>
     </>
